@@ -1,0 +1,4 @@
+rootProject.name = 'loadbalancingwithopenfeign'
+include 'service-a'
+include 'service-b'
+
