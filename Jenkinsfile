@@ -8,9 +8,10 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                echo 'Cloning repository...'
-                git credentialsId: 'github-credentials',
-                    url: 'https://github.com/SokmeanKao/LOAD_BALANCING_WITH_OPEN_FEIGN_CLIENT.git'
+                sh """
+                  rm -rf LOAD_BALANCING_WITH_OPEN_FEIGN_CLIENT
+                  git clone https://github.com/SokmeanKao/LOAD_BALANCING_WITH_OPEN_FEIGN_CLIENT.git
+                """
             }
         }
 
