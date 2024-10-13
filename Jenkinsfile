@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        DOCKER_IMAGE = "asd-image" // Update with your image name
+        DOCKER_IMAGE = "your-image-name:latest" // Update with your Docker image name
     }
     stages {
         stage('Clone Repository') {
@@ -18,9 +18,7 @@ pipeline {
         }
         stage('Build Docker Image') {
             when {
-                not {
-                    failed()
-                }
+                expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
             }
             steps {
                 echo 'Building Docker Image...'
@@ -29,13 +27,11 @@ pipeline {
         }
         stage('Deploy') {
             when {
-                not {
-                    failed()
-                }
+                expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
             }
             steps {
                 echo 'Deploying application...'
-                // Add your Docker run or deployment logic here, e.g.,:
+                // Add your deployment logic, e.g.:
                 // sh 'docker run -d --name app-container ${DOCKER_IMAGE}'
             }
         }
