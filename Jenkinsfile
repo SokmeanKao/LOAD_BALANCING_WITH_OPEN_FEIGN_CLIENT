@@ -1,59 +1,48 @@
 pipeline {
     agent any
-
     environment {
-        DOCKER_IMAGE = "jenkins-image"
+        DOCKER_IMAGE = "asd-image" // Update with your image name
     }
-
     stages {
         stage('Clone Repository') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/SokmeanKao/LOAD_BALANCING_WITH_OPEN_FEIGN_CLIENT.git',
-                    credentialsId: 'github-credentials'
+                echo 'Cloning repository...'
+                git credentialsId: 'github-credentials', url: 'https://github.com/SokmeanKao/LOAD_BALANCING_WITH_OPEN_FEIGN_CLIENT.git'
             }
         }
-
         stage('Build') {
             steps {
                 echo 'Building the Spring Boot project...'
-                sh 'chmod +x gradlew && ./gradlew clean build'
+                sh './gradlew clean build -x test'
             }
         }
-
         stage('Build Docker Image') {
-            steps {
-                echo 'Building Docker image...'
-                script {
-                    try {
-                        sh 'docker build -t $DOCKER_IMAGE .'
-                    } catch (Exception e) {
-                        echo 'Docker build failed'
-                    }
+            when {
+                not {
+                    failed()
                 }
             }
-        }
-
-        stage('Deploy') {
             steps {
-                echo 'Deploying the Docker container...'
-                script {
-                    try {
-                        sh '''
-                            docker stop $(docker ps -q --filter ancestor=$DOCKER_IMAGE) || true
-                            docker run -d --rm --name spring-service $DOCKER_IMAGE
-                        '''
-                    } catch (Exception e) {
-                        echo 'Deployment failed'
-                    }
+                echo 'Building Docker Image...'
+                sh 'docker build -t ${DOCKER_IMAGE} .'
+            }
+        }
+        stage('Deploy') {
+            when {
+                not {
+                    failed()
                 }
+            }
+            steps {
+                echo 'Deploying application...'
+                // Add your Docker run or deployment logic here, e.g.,:
+                // sh 'docker run -d --name app-container ${DOCKER_IMAGE}'
             }
         }
     }
-
     post {
-        success {
-            echo 'Build and deployment completed successfully.'
+        always {
+            echo 'Pipeline finished.'
         }
         failure {
             echo 'Build or deployment failed.'
